@@ -17,7 +17,7 @@ public class ClientEntity extends Thread {
     private PrintWriter writer;
     private BufferedReader reader;
     private String read;
-    JsonParser parser;
+    JsonParser parser = new JsonParser();
     Queries queries = new Queries();
     DBWorker dbWorker = new DBWorker();
 
@@ -38,9 +38,8 @@ public class ClientEntity extends Thread {
                 if (read.equals("exit")) {
                     break;
                 }
-                doneTask();
-                addTask();
-                doAuth();
+                parseRequest();
+
                 final String data = read;
                 System.out.println("---> received: " + read);
                 //вызов метода отправки сообщения всем клиентам
@@ -60,6 +59,22 @@ public class ClientEntity extends Thread {
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void parseRequest(){
+        String request;
+        if(parser.parseFromJsonToUser(read).getRequest()!=null) {
+            request = parser.parseFromJsonToUser(read).getRequest();
+            if(request.equals("doneTask")){
+                doneTask();
+            }
+            else if(request.equals(Request.ADD_TASKS_TO_USER)){
+                addTask();
+            }
+            else if(request.equals("auth")){
+                doAuth();
+            }
         }
     }
 
@@ -107,6 +122,7 @@ public class ClientEntity extends Thread {
                     System.out.println("добавляем задание в бд");
                     Task task = parser.parseFromJsonToUser(read).getTask();
                 dbWorker.insertTask(queries.insertTask(task.getTitle(), task.getBody(), task.getCreated(), "0", task.getDoneTime(), task.getUser(), task.getAdress(), task.getTelephone(), task.getCommentFromUser()));
+                    read = "add_task_success";
                 }
         }
     }
