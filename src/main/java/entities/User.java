@@ -2,9 +2,12 @@ package entities;
 
 public class User {
     private int id;
-    private String name;
+    private String login;
     private String password;
+    private String FIO;
     private String role;
+    private String telephone;
+    private String email;
     public static String userRole = "userRole";
     public static String adminRole = "adminRole";
     public static String guestRole = "guestRole";
@@ -17,12 +20,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getLogin() {
+        return login;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getPassword() {
@@ -41,16 +44,43 @@ public class User {
         this.role = role;
     }
 
+    public String getFIO() {
+        return FIO;
+    }
+
+    public void setFIO(String FIO) {
+        this.FIO = FIO;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public User(String name, String password){
-        this.name = name;
+        this.login = name;
         this.password = password;
         this.role = guestRole;
     }
 
-    public User(int id, String name, String password, String role){
+    public User(int id, String login, String password, String FIO, String role, String telephone, String email){
         this.id = id;
-        this.name = name;
+        this.login = login;
         this.password = password;
+        this.FIO = FIO;
         this.role = role;
+        this.telephone = telephone;
+        this.email = email;
     }
 }

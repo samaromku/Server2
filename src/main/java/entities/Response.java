@@ -11,13 +11,27 @@ public class Response {
     private Task task;
     private List<Task> taskList;
     private List<User> userList;
+    private List<Comment> comments;
     public static final String ADD_TASKS_TO_USER = "addTasksToUser";
     public static final String GET_AWAY_GUEST = "getAwayGuest";
     public static final String ADD_ACTION_ADMIN = "addActionAdmin";
+    public static final String ADD_TASK_SUCCESS = "add_task_success";
+    public static final String ADD_COMMENTS = "add_comments";
+    public static final String ADD_COMMENT_SUCCESS = "add_comment_success";
 
     public Response(User user, List<Task>taskList, String response) {
         this.user = user;
         this.taskList = taskList;
+        this.response = response;
+    }
+
+    public Response(Task task, String response){
+        this.task = task;
+        this.response = response;
+    }
+
+    public Response(List<Comment> comments, String response){
+        this.comments = comments;
         this.response = response;
     }
 
