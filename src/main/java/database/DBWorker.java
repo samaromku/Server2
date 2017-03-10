@@ -3,6 +3,7 @@ package database;
 import entities.Comment;
 import entities.Task;
 import entities.User;
+import entities.UserRole;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -76,6 +77,16 @@ public class DBWorker{
         }
     }
 
+    public void updateUserRole(UserRole userRole){
+        try {
+            System.out.println(queries.updateUserRoleById(userRole));
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.updateUserRoleById(userRole));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void queryById(){
         try {
             statement = dbStart.getConnection().createStatement();
@@ -89,6 +100,20 @@ public class DBWorker{
                 resultSet.getString(Queries.USER_ROLE),
                 resultSet.getString(Queries.USER_TLF),
                 resultSet.getString(Queries.USER_EMAIL)
+                , new UserRole(
+                    resultSet.getInt(Queries.USER_ROLE_ID),
+                        resultSet.getBoolean(Queries.MAKE_NEW_USER),
+                        resultSet.getBoolean(Queries.MAKE_TASKS),
+                        resultSet.getBoolean(Queries.CORRECTION_TASK),
+                        resultSet.getBoolean(Queries.MAKE_ADDRESS),
+                        resultSet.getBoolean(Queries.WATCH_ADDRESS),
+                        resultSet.getBoolean(Queries.CORRECTION_STATUS),
+                        resultSet.getBoolean(Queries.MAKE_EXECUTOR),
+                        resultSet.getBoolean(Queries.CORRECTION_EXECUTOR),
+                        resultSet.getBoolean(Queries.WATCH_TASKS),
+                        resultSet.getBoolean(Queries.COMMENT_TASKS),
+                        resultSet.getBoolean(Queries.CHANGE_PASSWORD),
+                    resultSet.getInt(Queries.ID))
                 ));
             }
         } catch (SQLException e) {

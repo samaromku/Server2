@@ -8,9 +8,18 @@ public class User {
     private String role;
     private String telephone;
     private String email;
-    public static String userRole = "userRole";
-    public static String adminRole = "adminRole";
-    public static String guestRole = "guestRole";
+    private UserRole userRole;
+    public static final String USER_ROLE = "userRole";
+    public static final String ADMIN_ROLE = "adminRole";
+    public static final String GUEST_ROLE = "guestRole";
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
 
     public int getId() {
         return id;
@@ -71,10 +80,10 @@ public class User {
     public User(String name, String password){
         this.login = name;
         this.password = password;
-        this.role = guestRole;
+        this.role = GUEST_ROLE;
     }
 
-    public User(int id, String login, String password, String FIO, String role, String telephone, String email){
+    public User(int id, String login, String password, String FIO, String role, String telephone, String email, UserRole userRole){
         this.id = id;
         this.login = login;
         this.password = password;
@@ -82,5 +91,6 @@ public class User {
         this.role = role;
         this.telephone = telephone;
         this.email = email;
+        this.userRole = userRole;
     }
 }

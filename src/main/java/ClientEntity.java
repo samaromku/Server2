@@ -19,6 +19,7 @@ public class ClientEntity extends Thread {
     private PrintWriter writer;
     private BufferedReader reader;
     private String read;
+    private String write;
     JsonParser parser = new JsonParser();
     Queries queries = new Queries();
     DBWorker dbWorker = new DBWorker();
@@ -43,8 +44,8 @@ public class ClientEntity extends Thread {
                 }
                 log.info("Сообщение от клиента: " + read);
                 parseRequest();
-                final String data = read;
-                log.info("Сообщение клиенту: " + read);
+                final String data = write;
+                log.info("Сообщение клиенту: " + write);
                 //вызов метода отправки сообщения всем клиентам
                 // - желательно в отдельном потоке
                 new Thread(new Runnable() {
@@ -86,6 +87,9 @@ public class ClientEntity extends Thread {
             else if(request.equals(Request.WANT_SOME_COMMENTS)){
                 sendCommentsByTask();
             }
+            else if(request.equals(Request.CHANGE_PERMISSION_PLEASE)){
+                updateUserRole();
+            }
             else if(request.equals("auth")){
                 doAuth();
             }
@@ -103,7 +107,7 @@ public class ClientEntity extends Thread {
                     parser.parseFromJson(read).getTask().getUserId()));
         Task task = parser.parseFromJson(read).getTask();
         task.setStatus(taskString);
-        read = parser.successCreateTask(task, Response.ADD_COMMENT_SUCCESS);
+        write = parser.successCreateTask(task, Response.ADD_COMMENT_SUCCESS);
     }
 
     private void doAuth(){
@@ -118,17 +122,17 @@ public class ClientEntity extends Thread {
             //проверка юзера
             for(User user : dbWorker.getUserList()) {
                     if (user.getLogin().equals(userName) && user.getPassword().equals(pwd)) {
-                        if (user.getRole().equals(User.adminRole)) {
+                        if (user.getRole().equals(User.ADMIN_ROLE)) {
                             dbWorker.queryAll();
-                            read = parser.parseToAdminUsersTask(dbWorker.getUserList(), dbWorker.getTasks(), Response.ADD_ACTION_ADMIN);
+                            write = parser.parseToAdminUsersTask(dbWorker.getUserList(), dbWorker.getTasks(), Response.ADD_ACTION_ADMIN);
                             log.info("юзер " + userName + " это админ ");
                         } else {
-                            log.info("юзернейм " + userName + " - это юзер из БД");
                             dbWorker.queryById(String.valueOf(user.getId()));
-                            read = parser.parseToJsonUserTasks(user, dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
+                            write = parser.parseToJsonUserTasks(user, dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
+                            log.info("юзернейм " + userName + " - это юзер из БД");
                         }
                     } else if (user.getRole().equals(userRole)) {
-                        read = parser.parseToJsonUserTasks(null, null, Response.GET_AWAY_GUEST);
+                        write = parser.parseToJsonUserTasks(null, null, Response.GET_AWAY_GUEST);
                         log.info("юзер " + userName + " это гость ");
                     }
             }
@@ -151,13 +155,17 @@ public class ClientEntity extends Thread {
 //                }
         }
 
+        private void updateUserRole(){
+            parser = new JsonParser();
+            dbWorker.updateUserRole(parser.parseFromJson(read).getUserRole());
+            write = parser.parseSuccessUpdateUserRole();
+        }
+
         private void sendCommentsByTask(){
             parser = new JsonParser();
-
             int id = parser.parseFromJson(read).getTask().getId();
             dbWorker.getCommentsById(id);
-            read = parser.parseCommentsByTask(dbWorker.getComments(), Response.ADD_COMMENTS);
+            write = parser.parseCommentsByTask(dbWorker.getComments(), Response.ADD_COMMENTS);
             dbWorker.removeOldComments();
-
         }
     }

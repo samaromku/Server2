@@ -13,34 +13,34 @@ import java.io.*;
 import java.util.logging.LogManager;
 
 
-public class Main extends Application{
-    Stage window;
-    Scene scene1;
+public class Main {
+//    private Stage window;
+//    private Scene scene1;
 
     public static void main(String[] args) {
-        launch(args);
-        //new Server().start();
+        //launch(args);
+        new Server().start();
     }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        window = primaryStage;
-
-        Button button = new Button("Start");
-        button.setOnAction(e -> Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                new Server().start();
-            }
-        }));
-        StackPane layout = new StackPane();
-        scene1 = new Scene(layout, 100, 50);
-
-
-
-
-        layout.getChildren().addAll(button);
-        window.setScene(scene1);
-        window.show();
-    }
+//    @Override
+//    public void start(Stage primaryStage) throws Exception {
+//        window = primaryStage;
+//
+//        Button button = new Button("Start");
+//        button.setOnAction(e -> Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                new Server().start();
+//            }
+//        }));
+//        StackPane layout = new StackPane();
+//        scene1 = new Scene(layout, 100, 50);
+//
+//
+//
+//
+//        layout.getChildren().addAll(button);
+//        window.setScene(scene1);
+//        window.show();
+//    }
 }

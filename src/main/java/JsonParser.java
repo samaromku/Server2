@@ -10,6 +10,10 @@ public class JsonParser {
         return gson.fromJson(json, Request.class);
     }
 
+    public String parseSuccessUpdateUserRole(){
+        return new Gson().toJson(new Response(Response.UPDATE_USER_ROLE_SUCCESS));
+    }
+
     public String parseToJsonUserTasks(User user, List<Task> taskList, String response){
         return new Gson().toJson(new Response(user, taskList, response));
     }

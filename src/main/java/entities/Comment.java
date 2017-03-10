@@ -1,11 +1,11 @@
 package entities;
 
 public class Comment {
-    int id;
-    String ts;
-    String body;
-    int userId;
-    int taskId;
+    private int id;
+    private String ts;
+    private String body;
+    private int userId;
+    private int taskId;
 
     public int getId() {
         return id;
