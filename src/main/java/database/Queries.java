@@ -2,6 +2,7 @@ package database;
 
 import entities.Comment;
 import entities.Task;
+import entities.User;
 import entities.UserRole;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class Queries {
     public static final String DONE_TIME = "done_time";
     public static final String OBJECT_ID = "address_name_id_address";
     public static final String USER_ID = "users_id_users";
+    public static final String ADDRESS_ID = "address_name_id_address";
 
 
     public static final String USER_NAME = "login";
@@ -25,8 +27,6 @@ public class Queries {
     public static final String USER_ROLE = "role";
     public static final String USER_TLF = "telephone";
     public static final String USER_EMAIL = "email";
-    public static final String ADDRESS = "address";
-    public static final String ORG_NAME = "org_name";
 
     public static final String COMMENT_BODY = "comment_body";
     public static final String USER_ID_USERS = "users_id_users";
@@ -45,13 +45,25 @@ public class Queries {
     public static final String CHANGE_PASSWORD = "change_password";
     public static final String USER_ROLE_ID = "user_role_id";
 
-    public final String NEW_TASK = "new_task";
-    public final String DISTRIBUTED_TASK = "distributed";
-    public final String DOING_TASK = "doing";
-    public final String DONE_TASK = "done";
-    public final String DISAGREE_TASK = "disagree";
-    public final String CONTROL_TASK = "control";
-    public final String NEED_HELP = "need_help";
+    public static final String ORG_NAME = "org_name";
+    public static final String ADDRESS = "address";
+
+//    public static final String NEW_TASK = "new_task";
+//    public static final String DISTRIBUTED_TASK = "distributed";
+//    public static final String DOING_TASK = "doing";
+//    public static final String DONE_TASK = "done";
+//    public static final String DISAGREE_TASK = "disagree";
+//    public static final String CONTROL_TASK = "control";
+//    public static final String NEED_HELP = "need_help";
+
+
+    public static final String NEW_TASK = "новое задание";
+    public static final String DISTRIBUTED_TASK = "распределено";
+    public static final String DOING_TASK = "выполняется";
+    public static final String DONE_TASK = "выполнено";
+    public static final String DISAGREE_TASK = "отказ";
+    public static final String CONTROL_TASK = "контроль";
+    public static final String NEED_HELP = "нужна помощь";
 
     public String updateUserRoleById(UserRole userRole){
         return "UPDATE `user_role` SET `make_new_user`='"+ tfNumbers(userRole.isMakeNewUser()) +
@@ -64,8 +76,19 @@ public class Queries {
                 "`change_password`='"+ tfNumbers(userRole.isChangePassword()) +"' WHERE `id_user_role`='"+ userRole.getId() +"';";
     }
 
+    public String addNewUser(User user){
+        return "INSERT INTO `users` (`id`, `login`, `password`, `FIO`, `role`, `telephone`, `email`) VALUES " +
+                "('"+ user.getId() +"', '" + user.getLogin() +"', '"+ user.getPassword() +
+                "', '"+ user.getFIO() +"', '"+ user.getRole() +"', '"+ user.getTelephone() +
+                "', '" + user.getEmail() + "');";
+    }
+
     public String selectAllByUserName(String id){
         return "SELECT * FROM tasks left join objects on tasks.address_name_id_address = objects.id where users_id_users='"+ id + "'";
+    }
+
+    public String selectUsersForSimpleUser(){
+        return "SELECT id, login, FIO, telephone, email FROM users;";
     }
 
     public String selectAllUsers(){
@@ -77,21 +100,40 @@ public class Queries {
         " left join objects on tasks.address_name_id_address = objects.id";
     }
 
-    public String insertTask(String title, String body, String created, String done, String doneTime, String user, String adress, String telephone, String commentUser){
-        return "INSERT INTO tasks(title, body, created, done, done_time, user, adress, telephone, comment_user) VALUES('"+
-                title + "', '" + body + "', '" + created + "', '" + done + "', '" + doneTime + "', '" + user + "', '" + adress + "', '" + telephone + "', '" + commentUser + "');";
+    public String insertTask(Task task){
+        return "INSERT INTO `mydb`.`tasks` (`id`, `created`, `importance`, `status`, `body`, `done_time`, " +
+                "`address_name_id_address`, `users_id_users`, `type`) VALUES ('" +
+                task.getId()+"', '"+task.getCreated()+"', '"+task.getImportance()+"', '"+task.getStatus()+
+                "', '"+task.getBody()+"', '"+task.getDoneTime()+"', '"+task.getAddressId()+"', '"+task.getUserId()+
+                "', '"+task.getType()+"');";
     }
 
     public String selectCommentsByTask(int taskId){
         return "select * from user_comment where tasks_id_tasks="+taskId;
     }
 
-    public String insertComment(Comment comment, int taskId, int userId){
-         return "INSERT INTO `mydb`.`user_comment` (`comment_body`, `created`, `users_id_users`, `tasks_id_tasks`) VALUES ('"+ comment.getBody() +"', '"+ comment.getTs() +"', '"+ userId +"', '"+ taskId +"');";
+    public String insertComment(Comment comment){
+         return "INSERT INTO `user_comment` (`comment_body`, `created`, `users_id_users`, `tasks_id_tasks`) VALUES ('"+
+                 comment.getBody() +"', '"+ comment.getTs() +"', '"+ comment.getUserId() +"', '"+ comment.getTaskId() +"');";
     }
 
     public String updateTask(String updateTask, int id){
-        return "UPDATE `mydb`.`tasks` SET `status`='"+ updateTask +"' WHERE `id`='"+ id +"';";
+        return "UPDATE `tasks` SET `status`='"+ updateTask +"' WHERE `id`='"+ id +"';";
+    }
+
+    public String getAddresses(){
+        return "select * from objects";
+    }
+
+    public String insertUserRole(UserRole userRole){
+        return "INSERT INTO `mydb`.`user_role` (`id_user_role`, `make_new_user`, `make_tasks`, `make_address`, `watch_address`, `correction_task`, `correction_status`, " +
+                "`make_executor`, `correction_executor`, `watch_tasks`, `comment_tasks`, `change_password`, `users_id_users`) VALUES ('" + userRole.getId()+"', '"+
+                tfNumbers(userRole.isMakeNewUser())  +"', '"+ tfNumbers(userRole.isMakeTasks()) + "', '" + tfNumbers(userRole.isMakeAddress()) +
+            "', '"+ tfNumbers(userRole.isWatchAddress()) +
+                "', '"+tfNumbers(userRole.isCorrectionTask())+"', '"+tfNumbers(userRole.isCorrectionStatus())+"', '" +
+                tfNumbers(userRole.isMakeExecutor())+"', '"+tfNumbers(userRole.isCorrectionExecutor())+"', '"+tfNumbers(userRole.isWatchTasks())+"', '"+tfNumbers(userRole.isCommentTasks())+"', '" +
+                tfNumbers(userRole.isChangePassword())+"', '"+userRole.getUserId()+"');";
+
     }
 
     private int tfNumbers(boolean b){

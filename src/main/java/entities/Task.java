@@ -11,17 +11,17 @@ public class Task {
     private String type;
     private String doneTime;
     private int userId;
+    private int addressId;
     private String address;
     private String orgName;
     private List<Comment> comments;
-    private Comment comment;
 
-    public Comment getComment() {
-        return comment;
+    public int getAddressId() {
+        return addressId;
     }
 
-    public void setComment(Comment comment) {
-        this.comment = comment;
+    public void setAddressId(int addressId) {
+        this.addressId = addressId;
     }
 
     public List<Comment> getComments() {
@@ -112,7 +112,7 @@ public class Task {
         this.userId = userId;
     }
 
-    public Task(int id, String created, String importance, String body, String status, String type, String doneTime, int userId, String address, String orgName) {
+    public Task(int id, String created, String importance, String body, String status, String type, String doneTime, int userId, int addressId, String address, String orgName) {
         this.id = id;
         this.created = created;
         this.importance = importance;
@@ -120,6 +120,7 @@ public class Task {
         this.status = status;
         this.doneTime = doneTime;
         this.userId = userId;
+        this.addressId = addressId;
         this.address = address;
         this.orgName = orgName;
         this.type = type;

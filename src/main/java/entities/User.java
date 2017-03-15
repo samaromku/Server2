@@ -93,4 +93,12 @@ public class User {
         this.email = email;
         this.userRole = userRole;
     }
+
+    public User(int id, String login, String FIO, String telephone, String email) {
+        this.id = id;
+        this.login = login;
+        this.FIO = FIO;
+        this.telephone = telephone;
+        this.email = email;
+    }
 }

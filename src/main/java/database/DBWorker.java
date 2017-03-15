@@ -1,9 +1,6 @@
 package database;
 
-import entities.Comment;
-import entities.Task;
-import entities.User;
-import entities.UserRole;
+import entities.*;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -45,6 +42,7 @@ public class DBWorker{
                         resultSet.getString(Queries.TYPE),
                         resultSet.getString(Queries.DONE_TIME),
                         resultSet.getInt(Queries.USER_ID),
+                        resultSet.getInt(Queries.ADDRESS_ID),
                         resultSet.getString(Queries.ADDRESS),
                         resultSet.getString(Queries.ORG_NAME)));
             }
@@ -52,6 +50,44 @@ public class DBWorker{
             log.error(e);
             e.printStackTrace();
         }
+    }
+
+    public List<User> getUsersForSimpleUser(){
+        List<User> userList1 = new ArrayList<>();
+        try {
+            statement = dbStart.getConnection().createStatement();
+            ResultSet resultSet = statement.executeQuery(queries.selectUsersForSimpleUser());
+            while (resultSet.next()){
+                User user = new User(
+                        resultSet.getInt(Queries.ID),
+                        resultSet.getString(Queries.USER_NAME),
+                        resultSet.getString(Queries.USER_FIO),
+                        resultSet.getString(Queries.USER_TLF),
+                        resultSet.getString(Queries.USER_EMAIL));
+                userList1.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userList1;
+    }
+
+    public List<Address> getAllAddresses(){
+        List<Address> addresses = new ArrayList<>();
+        try {
+            statement = dbStart.getConnection().createStatement();
+            ResultSet resultSet = statement.executeQuery(queries.getAddresses());
+            while (resultSet.next()){
+                addresses.add(new Address(
+                        resultSet.getInt(Queries.ID),
+                        resultSet.getString(Queries.ORG_NAME),
+                        resultSet.getString(Queries.ADDRESS)
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return addresses;
     }
 
     public void queryAll(){
@@ -68,6 +104,7 @@ public class DBWorker{
                         resultSet.getString(Queries.TYPE),
                         resultSet.getString(Queries.DONE_TIME),
                         resultSet.getInt(Queries.USER_ID),
+                        resultSet.getInt(Queries.ADDRESS_ID),
                         resultSet.getString(Queries.ADDRESS),
                         resultSet.getString(Queries.ORG_NAME)));
             }
@@ -79,11 +116,41 @@ public class DBWorker{
 
     public void updateUserRole(UserRole userRole){
         try {
-            System.out.println(queries.updateUserRoleById(userRole));
+
             statement = dbStart.getConnection().createStatement();
             statement.execute(queries.updateUserRoleById(userRole));
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void insertUserRole(UserRole userRole){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.insertUserRole(userRole));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void insertTask(Task task){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.insertTask(task));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -122,18 +189,28 @@ public class DBWorker{
         }
     }
 
+    public void addNewUser(User user){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.addNewUser(user));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void getCommentsById(int taskId){
         try {
             statement = dbStart.getConnection().createStatement();
             ResultSet resultSet = statement.executeQuery(queries.selectCommentsByTask(taskId));
             while (resultSet.next()){
-                comments.add(new Comment(
+                Comment comment = new Comment(
                         resultSet.getInt(Queries.ID),
                         resultSet.getString(Queries.CREATED),
                         resultSet.getString(Queries.COMMENT_BODY),
                         resultSet.getInt(Queries.USER_ID_USERS),
                         resultSet.getInt(Queries.TASKS_ID_TASKS)
-                ));
+                );
+                comments.add(comment);
             }
         } catch (SQLException e) {
             e.printStackTrace();

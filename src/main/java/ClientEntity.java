@@ -1,7 +1,7 @@
 import database.DBWorker;
 import database.Queries;
-import entities.Request;
-import entities.Response;
+import network.Request;
+import network.Response;
 import entities.Task;
 import entities.User;
 import org.apache.log4j.Logger;
@@ -72,42 +72,67 @@ public class ClientEntity extends Thread {
         String request;
         if(parser.parseFromJson(read).getRequest()!=null) {
             request = parser.parseFromJson(read).getRequest();
-            if(request.equals(queries.DONE_TASK)){
-                doneTask(queries.DONE_TASK);
-            }
-            else if(request.equals(queries.NEED_HELP)){
-                doneTask(queries.NEED_HELP);
-            }
-            else if(request.equals(queries.DISAGREE_TASK)){
-                doneTask(queries.DISAGREE_TASK);
-            }
-            else if(request.equals(Request.ADD_TASK_TO_USER)){
-                addTask();
-            }
-            else if(request.equals(Request.WANT_SOME_COMMENTS)){
-                sendCommentsByTask();
-            }
-            else if(request.equals(Request.CHANGE_PERMISSION_PLEASE)){
-                updateUserRole();
-            }
-            else if(request.equals("auth")){
-                doAuth();
-            }
+            switch (request){
+                case Queries.DONE_TASK:
+                    doneTask(Queries.DONE_TASK);
+                    return;
 
+                case Queries.NEED_HELP:
+                    doneTask(Queries.NEED_HELP);
+                    return;
+                case Queries.DISAGREE_TASK:
+                    doneTask(Queries.DISAGREE_TASK);
+                    return;
+
+                case Request.ADD_TASK_TO_USER:
+                    addTask();
+                    return;
+                case Request.WANT_SOME_COMMENTS:
+                    sendCommentsByTask();
+                    return;
+                case Request.CHANGE_PERMISSION_PLEASE:
+                    updateUserRole();
+                    return;
+
+                case Request.GIVE_ME_ADDRESSES_PLEASE:
+                    giveAddresses();
+                    return;
+
+                case Request.ADD_NEW_ROLE:
+                    addNewRole();
+                    return;
+
+                case Request.ADD_NEW_USER:
+                    addNewUser();
+                    return;
+
+                case Request.AUTH:
+                    doAuth();
+
+                    default:
+            }
         }
+    }
+
+    private void giveAddresses(){
+        parser = new JsonParser();
+        log.info("Подготавливаем адреса для клиента");
+        dbWorker.getAllAddresses();
+        write = parser.parseAddressesToUser(dbWorker.getAllAddresses());
     }
 
     private void doneTask(String taskString){
         parser = new JsonParser();
-            log.info("Клиент прислал запрос на выполненное задание, с комментарием "+ parser.parseFromJson(read).getTask().getComment().getBody());
-            dbWorker.updateTask(queries.updateTask(taskString, parser.parseFromJson(read).getTask().getId()));
-            dbWorker.insertComment(queries.insertComment(
-                    parser.parseFromJson(read).getTask().getComment(),
-                    parser.parseFromJson(read).getTask().getId(),
-                    parser.parseFromJson(read).getTask().getUserId()));
-        Task task = parser.parseFromJson(read).getTask();
-        task.setStatus(taskString);
-        write = parser.successCreateTask(task, Response.ADD_COMMENT_SUCCESS);
+            log.info("Клиент прислал запрос на выполненное задание, с комментарием "+ parser.parseFromJson(read).getComment().getBody());
+            dbWorker.updateTask(queries.updateTask(taskString, parser.parseFromJson(read).getComment().getTaskId()));
+            dbWorker.insertComment(queries.insertComment(parser.parseFromJson(read).getComment()));
+        write = parser.successAddComment();
+    }
+
+    private void addNewUser(){
+        parser = new JsonParser();
+        dbWorker.addNewUser(parser.parseFromJson(read).getUser());
+        write = parser.successAddUser();
     }
 
     private void doAuth(){
@@ -116,9 +141,6 @@ public class ClientEntity extends Thread {
             String userName = parser.parseFromJson(read).getUser().getLogin();
             String pwd = parser.parseFromJson(read).getUser().getPassword();
             String userRole = parser.parseFromJson(read).getUser().getRole();
-            for(User users : dbWorker.getUserList()){
-                System.out.println(users.getFIO() + " " + users.getRole());
-            }
             //проверка юзера
             for(User user : dbWorker.getUserList()) {
                     if (user.getLogin().equals(userName) && user.getPassword().equals(pwd)) {
@@ -128,11 +150,11 @@ public class ClientEntity extends Thread {
                             log.info("юзер " + userName + " это админ ");
                         } else {
                             dbWorker.queryById(String.valueOf(user.getId()));
-                            write = parser.parseToJsonUserTasks(user, dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
+                            write = parser.parseToJsonUserTasks(dbWorker.getUsersForSimpleUser(), user, dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
                             log.info("юзернейм " + userName + " - это юзер из БД");
                         }
                     } else if (user.getRole().equals(userRole)) {
-                        write = parser.parseToJsonUserTasks(null, null, Response.GET_AWAY_GUEST);
+                        write = parser.parseToJsonUserTasks();
                         log.info("юзер " + userName + " это гость ");
                     }
             }
@@ -143,16 +165,9 @@ public class ClientEntity extends Thread {
 
         private void addTask(){
             parser = new JsonParser();
-//                if (parser.parseFromJson(read).getRequest().equals(Request.ADD_TASK_TO_USER)) {
-//                    log.info("добавляем задание в бд");
-//                    Task task = parser.parseFromJson(read).getTask();
-//                dbWorker.insertTask(queries.insertTask(task.getTitle(), task.getBody(), task.getCreated(), "0", task.getDoneTime(), task.getUser(), task.getAdress(), task.getTelephone(), task.getCommentFromUser()));
-//                    read = parser.successCreateTask(task, Response.ADD_TASK_SUCCESS);
-//                    log.info("добавили задание успешно");
-//                }
-//                else{
-//                    log.info("не получилось добавить задание в бд");
-//                }
+                    Task task = parser.parseFromJson(read).getTask();
+                    dbWorker.insertTask(task);
+                    write = parser.successCreateTask();
         }
 
         private void updateUserRole(){
@@ -167,5 +182,11 @@ public class ClientEntity extends Thread {
             dbWorker.getCommentsById(id);
             write = parser.parseCommentsByTask(dbWorker.getComments(), Response.ADD_COMMENTS);
             dbWorker.removeOldComments();
+        }
+
+        private void addNewRole(){
+            parser = new JsonParser();
+            dbWorker.insertUserRole(parser.parseFromJson(read).getUserRole());
+            write = parser.parseSuccessInsertUserRole();
         }
     }
