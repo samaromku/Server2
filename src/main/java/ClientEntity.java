@@ -23,7 +23,25 @@ public class ClientEntity extends Thread {
     JsonParser parser = new JsonParser();
     Queries queries = new Queries();
     DBWorker dbWorker = new DBWorker();
+    private String clientName;
+    private String firstLine;
+    private boolean isAuth = false;
 
+    public boolean isAuth() {
+        return isAuth;
+    }
+
+    public void setAuth(boolean auth) {
+        isAuth = auth;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
 
     public ClientEntity(Socket socket, Server server) {
         this.socket = socket;
@@ -35,36 +53,54 @@ public class ClientEntity extends Thread {
     public void run() {
         try {
             dbWorker.queryById();
-            reader = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(socket.getOutputStream());
-            while ((read = reader.readLine()) != null) {
-                if (read.equals("exit")) {
-                    break;
-                }
-                log.info("Сообщение от клиента: " + read);
-                parseRequest();
-                final String data = write;
-                log.info("Сообщение клиенту: " + write);
-                //вызов метода отправки сообщения всем клиентам
-                // - желательно в отдельном потоке
-                new Thread(new Runnable() {
-                    public void run() {
-                        server.getClientEntity().writer.println(data);
-                        server.getClientEntity().writer.flush();
+
+            while((firstLine = reader.readLine())!=null){
+            checkAuth();
+            if (isAuth()) {
+                while ((read = reader.readLine()) != null) {
+                    if (read.equals("exit")) {
+                        break;
+                    }
+                    log.info("Сообщение от " + getClientName() + read);
+                    parseRequest();
+                    final String data = write;
+                    log.info("Сообщение юзеру " + getClientName() + ": " + write);
+                    //вызов метода отправки сообщения всем клиентам
+                    // - желательно в отдельном потоке
+                    new Thread(new Runnable() {
+                        public void run() {
+                            server.getClientEntity().writer.println(data);
+                            server.getClientEntity().writer.flush();
 //                        for (int i = 0; i < server.getClients().size(); i++) {
 //                            server.getClients().get(i).writer.println(data);
 //                            server.getClients().get(i).writer.flush();
 //                        }
-                    }
-                }).start();
+                        }
+                    }).start();
+                }
             }
+        }
             writer.close();
             server.remove(this);
             reader.close();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void checkAuth(){
+
+        if(parser.parseFromJson(firstLine).getRequest().equals(Request.AUTH)){
+            doAuth();
+            String data = write;
+            System.out.println("message to " + getClientName() + data);
+            new Thread(() -> {
+                server.getClientEntity().writer.println(data);
+                server.getClientEntity().writer.flush();
+            }).start();
         }
     }
 
@@ -105,9 +141,9 @@ public class ClientEntity extends Thread {
                 case Request.ADD_NEW_USER:
                     addNewUser();
                     return;
-
-                case Request.AUTH:
-                    doAuth();
+//
+//                case Request.AUTH:
+//                    doAuth();
 
                     default:
             }
@@ -137,29 +173,38 @@ public class ClientEntity extends Thread {
 
     private void doAuth(){
         parser = new JsonParser();
-        if(parser.parseFromJson(read).getRequest().equals("auth")){
-            String userName = parser.parseFromJson(read).getUser().getLogin();
-            String pwd = parser.parseFromJson(read).getUser().getPassword();
-            String userRole = parser.parseFromJson(read).getUser().getRole();
+        Request authRequest = parser.parseFromJson(firstLine);
+        User userFromRequest = authRequest.getUser();
+
+            String userName = authRequest.getUser().getLogin();
+            String pwd = authRequest.getUser().getPassword();
+            String userRole = authRequest.getUser().getRole();
             //проверка юзера
+
             for(User user : dbWorker.getUserList()) {
                     if (user.getLogin().equals(userName) && user.getPassword().equals(pwd)) {
                         if (user.getRole().equals(User.ADMIN_ROLE)) {
                             dbWorker.queryAll();
                             write = parser.parseToAdminUsersTask(dbWorker.getUserList(), dbWorker.getTasks(), Response.ADD_ACTION_ADMIN);
                             log.info("юзер " + userName + " это админ ");
+                            setClientName(userName);
+                            setAuth(true);
+                            return;
                         } else {
                             dbWorker.queryById(String.valueOf(user.getId()));
                             write = parser.parseToJsonUserTasks(dbWorker.getUsersForSimpleUser(), user, dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
                             log.info("юзернейм " + userName + " - это юзер из БД");
+                            setClientName(userName);
+                            setAuth(true);
+                            return;
                         }
-                    } else if (user.getRole().equals(userRole)) {
-                        write = parser.parseToJsonUserTasks();
+                    } else {
+                        write = parser.parseToJsonGuest();
                         log.info("юзер " + userName + " это гость ");
+                        setClientName("неавторизованный клиент "+userName);
+                        setAuth(false);
+                        return;
                     }
-            }
-
-
             }
         }
 

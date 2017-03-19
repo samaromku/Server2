@@ -30,7 +30,7 @@ public class JsonParser {
         return new Gson().toJson(new Response(users, user, taskList, response));
     }
 
-    public String parseToJsonUserTasks(){
+    public String parseToJsonGuest(){
         return new Gson().toJson(new Response(Response.GET_AWAY_GUEST));
     }
 

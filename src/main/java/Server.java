@@ -30,7 +30,7 @@ public class Server {
                 Socket client = serverSocket.accept();
                 clientEntity = new ClientEntity(client, this);
                 clients.add(clientEntity);
-                log.info("Клиент присоединился");
+//                log.info("Клиент присоединился");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -39,6 +39,6 @@ public class Server {
 
     public void remove(ClientEntity client) {
         clients.remove(client);
-        log.info("Клиент отсоединился");
+        log.info(client.getClientName() + " отсоединился");
     }
 }
