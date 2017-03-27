@@ -23,6 +23,9 @@ public class Response {
     public static final String ADD_COMMENT_SUCCESS = "add_comment_success";
     public static final String ADD_ADDRESSES_TO_USER = "add_addresses_to_user";
     public static final String SUCCESS_ADD_USER = "success_add_user";
+    public static final String SUCCESS_ADD_COORDS = "success_add_coords";
+    public static final String SUCCESS_UPDATE_TASK = "success_update_task";
+    public static final String NOT_SUCCESS = "not_success";
 
 
     public Response(List<User>users, User user, List<Task>taskList, String response) {
@@ -43,6 +46,11 @@ public class Response {
     }
 
     public Response(String response){
+        this.response = response;
+    }
+
+    public Response(User user, String response){
+        this.user = user;
         this.response = response;
     }
 

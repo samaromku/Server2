@@ -1,6 +1,7 @@
 package database;
 
 import entities.*;
+import managers.TasksManager;
 import org.apache.log4j.Logger;
 
 import java.sql.*;
@@ -9,12 +10,33 @@ import java.util.List;
 
 public class DBWorker{
     private DBStart dbStart = new DBStart();
-    private List<Task> tasks = new ArrayList<Task>();
     private List<User> userList = new ArrayList<User>();
     private List<Comment> comments = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>();
+    private List<UserRole> userRoles = new ArrayList<>();
     private Statement statement;
     private Queries queries = new Queries();
     Logger log = Logger.getLogger(DBWorker.class.getName());
+
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    public void setUserRoles(List<UserRole> userRoles) {
+        this.userRoles = userRoles;
+    }
+
+    public List<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
 
     public List<Comment> getComments() {
         return comments;
@@ -22,10 +44,6 @@ public class DBWorker{
 
     public List<User> getUserList() {
         return userList;
-    }
-
-    public List<Task> getTasks() {
-        return tasks;
     }
 
     public void queryById(String id){
@@ -124,12 +142,48 @@ public class DBWorker{
         }
     }
 
-    public void insertUserRole(UserRole userRole){
+    public boolean insertUserRole(UserRole userRole){
         try {
             statement = dbStart.getConnection().createStatement();
             statement.execute(queries.insertUserRole(userRole));
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
+        }finally {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean insertUserCoords(UserCoords userCoords){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.addUserCoords(userCoords));
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }finally {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public boolean updateTask(Task task){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.updateTask(task));
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }finally {
             try {
                 statement.close();
@@ -189,12 +243,21 @@ public class DBWorker{
         }
     }
 
-    public void addNewUser(User user){
+    public boolean addNewUserAndUserRole(User user){
         try {
             statement = dbStart.getConnection().createStatement();
             statement.execute(queries.addNewUser(user));
+            statement.execute(queries.insertUserRole(user.getUserRole()));
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
+        }finally {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -12,6 +12,14 @@ public class JsonParser {
         return gson.fromJson(json, Request.class);
     }
 
+    public String successAddCoords(){
+        return new Gson().toJson(new Response(Response.SUCCESS_ADD_COORDS));
+    }
+
+    public String successUpdateTask(){
+        return new Gson().toJson(new Response(Response.SUCCESS_UPDATE_TASK));
+    }
+
     public String parseAddressesToUser(List<Address> addresses){
         return new Gson().toJson(new Response(Response.ADD_ADDRESSES_TO_USER, addresses));
     }
@@ -22,6 +30,10 @@ public class JsonParser {
 
     public String parseSuccessInsertUserRole(){
         return new Gson().toJson(new Response(Response.INSERT_USER_ROLE_SUCCESS));
+    }
+
+    public String notSuccess(){
+        return new Gson().toJson(new Response(Response.NOT_SUCCESS));
     }
 
 
@@ -48,8 +60,8 @@ public class JsonParser {
 
 
 
-    public String successAddUser(){
-        return new Gson().toJson(new Response(Response.SUCCESS_ADD_USER));
+    public String successAddUser(User user, String response){
+        return new Gson().toJson(new Response(user, response));
     }
 
     public String parseCommentsByTask(List<Comment> comments, String response){

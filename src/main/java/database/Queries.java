@@ -1,9 +1,6 @@
 package database;
 
-import entities.Comment;
-import entities.Task;
-import entities.User;
-import entities.UserRole;
+import entities.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +73,11 @@ public class Queries {
                 "`change_password`='"+ tfNumbers(userRole.isChangePassword()) +"' WHERE `id_user_role`='"+ userRole.getId() +"';";
     }
 
+    public String addUserCoords(UserCoords userCoords){
+        return "INSERT INTO `mydb`.`user_coords` (`coords_lat`, `coords_lon`, `users_id_users`, `ts`) VALUES ('" +
+                userCoords.getLat()+"', '"+userCoords.getLog()+"', '"+userCoords.getUserId()+"', '"+userCoords.getTs()+"');";
+    }
+
     public String addNewUser(User user){
         return "INSERT INTO `users` (`id`, `login`, `password`, `FIO`, `role`, `telephone`, `email`) VALUES " +
                 "('"+ user.getId() +"', '" + user.getLogin() +"', '"+ user.getPassword() +
@@ -106,6 +108,13 @@ public class Queries {
                 task.getId()+"', '"+task.getCreated()+"', '"+task.getImportance()+"', '"+task.getStatus()+
                 "', '"+task.getBody()+"', '"+task.getDoneTime()+"', '"+task.getAddressId()+"', '"+task.getUserId()+
                 "', '"+task.getType()+"');";
+    }
+
+    public String updateTask(Task task){
+        return "UPDATE `tasks` SET `created`='"+task.getCreated()+"', `importance`='"+task.getImportance()
+                +"', `status`='"+task.getStatus()+"', `body`='"+task.getBody()
+                +"', `done_time`='"+task.getDoneTime()+"', `address_name_id_address`='"+task.getAddressId()
+                +"', `users_id_users`='"+task.getUserId()+"', `type`='"+task.getType()+"' WHERE `id`='"+task.getId()+"';";
     }
 
     public String selectCommentsByTask(int taskId){

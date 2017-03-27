@@ -9,9 +9,13 @@ public class User {
     private String telephone;
     private String email;
     private UserRole userRole;
+    public static final String MANAGER_ROLE = "managerRole";
     public static final String USER_ROLE = "userRole";
     public static final String ADMIN_ROLE = "adminRole";
     public static final String GUEST_ROLE = "guestRole";
+
+    public User() {
+    }
 
     public UserRole getUserRole() {
         return userRole;

@@ -1,5 +1,7 @@
 import database.DBWorker;
 import database.Queries;
+import entities.UserRole;
+import managers.*;
 import network.Request;
 import network.Response;
 import entities.Task;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientEntity extends Thread {
     private Logger log = Logger.getLogger(ClientEntity.class.getName());
@@ -138,27 +142,45 @@ public class ClientEntity extends Thread {
                     addNewRole();
                     return;
 
+                case Request.ADD_COORDS:
+                    addCoords();
+                    return;
+
+                case Request.UPDATE_TASK:
+                    updateTask();
+                    return;
+
                 case Request.ADD_NEW_USER:
                     addNewUser();
                     return;
-//
-//                case Request.AUTH:
-//                    doAuth();
 
                     default:
             }
         }
     }
 
+    private void updateTask(){
+        log.info("Обновляем задание");
+        if(dbWorker.updateTask(parser.parseFromJson(read).getTask()))
+            write = parser.successUpdateTask();
+                    else write = parser.notSuccess();
+
+    }
+
+    private void addCoords(){
+        log.info("Добавляем координаты юзера");
+        if(dbWorker.insertUserCoords(parser.parseFromJson(read).getUserCoords()))
+        write = parser.successAddCoords();
+        else write = parser.notSuccess();
+    }
+
     private void giveAddresses(){
-        parser = new JsonParser();
         log.info("Подготавливаем адреса для клиента");
         dbWorker.getAllAddresses();
         write = parser.parseAddressesToUser(dbWorker.getAllAddresses());
     }
 
     private void doneTask(String taskString){
-        parser = new JsonParser();
             log.info("Клиент прислал запрос на выполненное задание, с комментарием "+ parser.parseFromJson(read).getComment().getBody());
             dbWorker.updateTask(queries.updateTask(taskString, parser.parseFromJson(read).getComment().getTaskId()));
             dbWorker.insertComment(queries.insertComment(parser.parseFromJson(read).getComment()));
@@ -166,63 +188,112 @@ public class ClientEntity extends Thread {
     }
 
     private void addNewUser(){
-        parser = new JsonParser();
-        dbWorker.addNewUser(parser.parseFromJson(read).getUser());
-        write = parser.successAddUser();
+        User newUser = parser.parseFromJson(read).getUser();
+        int userId = (int) (Math.random()*500);
+        newUser.setId(userId);
+        UserRole userRole = new UserRole(userId, false, false, false, false, false, false, false, false, false, false, false, userId);;
+        switch (newUser.getRole()) {
+            case User.ADMIN_ROLE:
+                userRole = new UserRole(userId, true, true, true, true, true, true, true, true, true, true, true, userId);
+                break;
+            case User.USER_ROLE:
+                userRole = new UserRole(userId, false, false, false, false, true, true, false, false, true, true, false, userId);
+                break;
+            case User.MANAGER_ROLE:
+                userRole = new UserRole(userId, false, true, true, false, true, true, true, true, true, true, false, userId);
+                break;
+        }
+        newUser.setUserRole(userRole);
+        if(dbWorker.addNewUserAndUserRole(newUser)) {
+            write = parser.successAddUser(newUser, Response.SUCCESS_ADD_USER);
+        }else write = parser.notSuccess();
     }
 
     private void doAuth(){
-        parser = new JsonParser();
         Request authRequest = parser.parseFromJson(firstLine);
-        User userFromRequest = authRequest.getUser();
+        String userName = authRequest.getUser().getLogin();
+        String pwd = authRequest.getUser().getPassword();
+        //проверка юзера
 
-            String userName = authRequest.getUser().getLogin();
-            String pwd = authRequest.getUser().getPassword();
-            String userRole = authRequest.getUser().getRole();
-            //проверка юзера
-
-            for(User user : dbWorker.getUserList()) {
-                    if (user.getLogin().equals(userName) && user.getPassword().equals(pwd)) {
-                        if (user.getRole().equals(User.ADMIN_ROLE)) {
-                            dbWorker.queryAll();
-                            write = parser.parseToAdminUsersTask(dbWorker.getUserList(), dbWorker.getTasks(), Response.ADD_ACTION_ADMIN);
-                            log.info("юзер " + userName + " это админ ");
-                            setClientName(userName);
-                            setAuth(true);
-                            return;
-                        } else {
-                            dbWorker.queryById(String.valueOf(user.getId()));
-                            write = parser.parseToJsonUserTasks(dbWorker.getUsersForSimpleUser(), user, dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
-                            log.info("юзернейм " + userName + " - это юзер из БД");
-                            setClientName(userName);
-                            setAuth(true);
-                            return;
-                        }
-                    } else {
-                        write = parser.parseToJsonGuest();
-                        log.info("юзер " + userName + " это гость ");
-                        setClientName("неавторизованный клиент "+userName);
-                        setAuth(false);
-                        return;
-                    }
+        User tryToAuth = new User();
+        tryToAuth.setLogin(userName);
+        tryToAuth.setPassword(pwd);
+        List<User> userList = new ArrayList<>();
+        userList.addAll(dbWorker.getUserList());
+        for (int i = 0; i < userList.size(); i++) {
+            if(userList.get(i).getLogin().equals(tryToAuth.getLogin()) &&
+                userList.get(i).getPassword().equals(tryToAuth.getPassword())){
+                tryToAuth = userList.get(i);
             }
+        }
+        if(tryToAuth.getRole()!=null){
+        if(tryToAuth.getRole().equals(User.ADMIN_ROLE)){
+            dbWorker.queryAll();
+            write = parser.parseToAdminUsersTask(dbWorker.getUserList(), dbWorker.getTasks(), Response.ADD_ACTION_ADMIN);
+            log.info("юзер " + userName + " это админ ");
+            setClientName(userName);
+            setAuth(true);
+            return;
+        } else if(tryToAuth.getRole().equals(User.USER_ROLE)){
+            dbWorker.queryById(String.valueOf(tryToAuth.getId()));
+            write = parser.parseToJsonUserTasks(dbWorker.getUsersForSimpleUser(), tryToAuth,
+                    dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
+            log.info("юзернейм " + userName + " - это юзер из БД");
+            setClientName(userName);
+            setAuth(true);
+            return;
+        }
+        } else {
+            write = parser.parseToJsonGuest();
+            log.info("юзер " + userName + " это гость ");
+            setClientName("неавторизованный клиент "+userName);
+            setAuth(false);
+            return;
+        }
+//            for(User user : dbWorker.getUserList()) {
+//                System.out.println("Юзернейм " + userName + " " + pwd);
+//                System.out.println(dbWorker.getUserList().size()+" size");
+//                System.out.println( "Юзернейм из массива" +user.getLogin() + " " + user.getPassword());
+//                    if (user.getLogin().equals(userName) && user.getPassword().equals(pwd)) {
+//                        if (user.getRole().equals(User.ADMIN_ROLE)) {
+//                            dbWorker.queryAll();
+//                            write = parser.parseToAdminUsersTask(dbWorker.getUserList(), dbWorker.getTasks(), Response.ADD_ACTION_ADMIN);
+//                            log.info("юзер " + userName + " это админ ");
+//                            setClientName(userName);
+//                            setAuth(true);
+//                            return;
+//                        } else {
+//                            dbWorker.queryById(String.valueOf(user.getId()));
+//                            write = parser.parseToJsonUserTasks(dbWorker.getUsersForSimpleUser(), user,
+//                                    dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
+//                            log.info("юзернейм " + userName + " - это юзер из БД");
+//                            setClientName(userName);
+//                            setAuth(true);
+//                            return;
+//                        }
+//                    }
+////                    else {
+////                        write = parser.parseToJsonGuest();
+////                        log.info("юзер " + userName + " это гость ");
+////                        setClientName("неавторизованный клиент "+userName);
+////                        setAuth(false);
+////                        return;
+////                    }
+//            }
         }
 
         private void addTask(){
-            parser = new JsonParser();
                     Task task = parser.parseFromJson(read).getTask();
                     dbWorker.insertTask(task);
                     write = parser.successCreateTask();
         }
 
         private void updateUserRole(){
-            parser = new JsonParser();
             dbWorker.updateUserRole(parser.parseFromJson(read).getUserRole());
             write = parser.parseSuccessUpdateUserRole();
         }
 
         private void sendCommentsByTask(){
-            parser = new JsonParser();
             int id = parser.parseFromJson(read).getTask().getId();
             dbWorker.getCommentsById(id);
             write = parser.parseCommentsByTask(dbWorker.getComments(), Response.ADD_COMMENTS);
@@ -230,8 +301,8 @@ public class ClientEntity extends Thread {
         }
 
         private void addNewRole(){
-            parser = new JsonParser();
-            dbWorker.insertUserRole(parser.parseFromJson(read).getUserRole());
+            if(dbWorker.insertUserRole(parser.parseFromJson(read).getUserRole()))
             write = parser.parseSuccessInsertUserRole();
+            else write = parser.notSuccess();
         }
     }
