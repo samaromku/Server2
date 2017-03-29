@@ -40,7 +40,7 @@ public class Queries {
     public static final String WATCH_TASKS = "watch_tasks";
     public static final String COMMENT_TASKS = "comment_tasks";
     public static final String CHANGE_PASSWORD = "change_password";
-    public static final String USER_ROLE_ID = "user_role_id";
+    public static final String ID_USER_ROLE = "id_user_role";
 
     public static final String ORG_NAME = "org_name";
     public static final String ADDRESS = "address";
@@ -85,8 +85,9 @@ public class Queries {
                 "', '" + user.getEmail() + "');";
     }
 
-    public String selectAllByUserName(String id){
-        return "SELECT * FROM tasks left join objects on tasks.address_name_id_address = objects.id where users_id_users='"+ id + "'";
+    public String selectAllByUserId(String id){
+        return "SELECT * FROM tasks left join objects on tasks.address_name_id_address = objects.id where not status='"+ DONE_TASK +
+                "' and users_id_users='"+id+"' order by "+IMPORTANCE+" , done_time";
     }
 
     public String selectUsersForSimpleUser(){
@@ -94,12 +95,11 @@ public class Queries {
     }
 
     public String selectAllUsers(){
-        return "SELECT * FROM users left join user_role on users.user_role_id=user_role.id_user_role";
+        return "SELECT * FROM users left join user_role on users.id=user_role.users_id_users";
     }
 
     public String selectAllTasksObjects(){
-        return "SELECT * FROM tasks"+
-        " left join objects on tasks.address_name_id_address = objects.id";
+        return "SELECT * FROM tasks left join objects on tasks.address_name_id_address = objects.id order by status, done_time";
     }
 
     public String insertTask(Task task){
@@ -118,7 +118,7 @@ public class Queries {
     }
 
     public String selectCommentsByTask(int taskId){
-        return "select * from user_comment where tasks_id_tasks="+taskId;
+        return "select * from user_comment where tasks_id_tasks="+taskId + " order by created desc";
     }
 
     public String insertComment(Comment comment){

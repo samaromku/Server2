@@ -49,7 +49,7 @@ public class DBWorker{
     public void queryById(String id){
         try {
             statement = dbStart.getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery(queries.selectAllByUserName(id));
+            ResultSet resultSet = statement.executeQuery(queries.selectAllByUserId(id));
             while (resultSet.next()) {
                 tasks.add(new Task(
                         resultSet.getInt(Queries.ID),
@@ -222,7 +222,7 @@ public class DBWorker{
                 resultSet.getString(Queries.USER_TLF),
                 resultSet.getString(Queries.USER_EMAIL)
                 , new UserRole(
-                    resultSet.getInt(Queries.USER_ROLE_ID),
+                    resultSet.getInt(Queries.ID_USER_ROLE),
                         resultSet.getBoolean(Queries.MAKE_NEW_USER),
                         resultSet.getBoolean(Queries.MAKE_TASKS),
                         resultSet.getBoolean(Queries.CORRECTION_TASK),
@@ -234,7 +234,7 @@ public class DBWorker{
                         resultSet.getBoolean(Queries.WATCH_TASKS),
                         resultSet.getBoolean(Queries.COMMENT_TASKS),
                         resultSet.getBoolean(Queries.CHANGE_PASSWORD),
-                    resultSet.getInt(Queries.ID))
+                        resultSet.getInt(Queries.ID))
                 ));
             }
         } catch (SQLException e) {

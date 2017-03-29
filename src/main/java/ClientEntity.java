@@ -61,6 +61,7 @@ public class ClientEntity extends Thread {
             writer = new PrintWriter(socket.getOutputStream());
 
             while((firstLine = reader.readLine())!=null){
+                System.out.println(firstLine);
             checkAuth();
             if (isAuth()) {
                 while ((read = reader.readLine()) != null) {
@@ -113,8 +114,8 @@ public class ClientEntity extends Thread {
         if(parser.parseFromJson(read).getRequest()!=null) {
             request = parser.parseFromJson(read).getRequest();
             switch (request){
-                case Queries.DONE_TASK:
-                    doneTask(Queries.DONE_TASK);
+                case Queries.CONTROL_TASK:
+                    doneTask(Queries.CONTROL_TASK);
                     return;
 
                 case Queries.NEED_HELP:
@@ -227,10 +228,10 @@ public class ClientEntity extends Thread {
             }
         }
         if(tryToAuth.getRole()!=null){
-        if(tryToAuth.getRole().equals(User.ADMIN_ROLE)){
+        if(tryToAuth.getRole().equals(User.ADMIN_ROLE)||tryToAuth.getRole().equals(User.MANAGER_ROLE)){
             dbWorker.queryAll();
             write = parser.parseToAdminUsersTask(dbWorker.getUserList(), dbWorker.getTasks(), Response.ADD_ACTION_ADMIN);
-            log.info("юзер " + userName + " это админ ");
+//            log.info("юзер " + userName + " это админ ");
             setClientName(userName);
             setAuth(true);
             return;
@@ -238,7 +239,7 @@ public class ClientEntity extends Thread {
             dbWorker.queryById(String.valueOf(tryToAuth.getId()));
             write = parser.parseToJsonUserTasks(dbWorker.getUsersForSimpleUser(), tryToAuth,
                     dbWorker.getTasks(), Response.ADD_TASKS_TO_USER);
-            log.info("юзернейм " + userName + " - это юзер из БД");
+//            log.info("юзернейм " + userName + " - это юзер из БД");
             setClientName(userName);
             setAuth(true);
             return;
