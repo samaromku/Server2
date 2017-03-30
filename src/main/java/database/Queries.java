@@ -45,6 +45,10 @@ public class Queries {
     public static final String ORG_NAME = "org_name";
     public static final String ADDRESS = "address";
 
+    public static final String COORDS_LAT = "coords_lat";
+    public static final String COORDS_LON = "coords_lon";
+    public static final String TS = "ts";
+
 //    public static final String NEW_TASK = "new_task";
 //    public static final String DISTRIBUTED_TASK = "distributed";
 //    public static final String DOING_TASK = "doing";
@@ -76,6 +80,10 @@ public class Queries {
     public String addUserCoords(UserCoords userCoords){
         return "INSERT INTO `mydb`.`user_coords` (`coords_lat`, `coords_lon`, `users_id_users`, `ts`) VALUES ('" +
                 userCoords.getLat()+"', '"+userCoords.getLog()+"', '"+userCoords.getUserId()+"', '"+userCoords.getTs()+"');";
+    }
+
+    public String getLastUserCoords(){
+        return "SELECT id, coords_lat, coords_lon, users_id_users, address, max(ts) as ts from user_coords group by users_id_users;";
     }
 
     public String addNewUser(User user){

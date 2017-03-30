@@ -24,6 +24,10 @@ public class JsonParser {
         return new Gson().toJson(new Response(Response.ADD_ADDRESSES_TO_USER, addresses));
     }
 
+    public String parseLastUserCoords(List<UserCoords> userCoordsList){
+        return new Gson().toJson(Response.getUserCoords(userCoordsList, Response.ADD_LATEST_USER_COORDS));
+    }
+
     public String parseSuccessUpdateUserRole(){
         return new Gson().toJson(new Response(Response.UPDATE_USER_ROLE_SUCCESS));
     }

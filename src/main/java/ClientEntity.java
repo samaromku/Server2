@@ -135,6 +135,10 @@ public class ClientEntity extends Thread {
                     updateUserRole();
                     return;
 
+                case Request.GIVE_ME_LAST_USERS_COORDS:
+                    getLatestUsersCoords();
+                    return;
+
                 case Request.GIVE_ME_ADDRESSES_PLEASE:
                     giveAddresses();
                     return;
@@ -165,7 +169,14 @@ public class ClientEntity extends Thread {
         if(dbWorker.updateTask(parser.parseFromJson(read).getTask()))
             write = parser.successUpdateTask();
                     else write = parser.notSuccess();
+    }
 
+    private void getLatestUsersCoords(){
+        log.info("Даем последние координаты юзеров");
+        if(dbWorker.getLatestUserCoords())
+            write = parser.parseLastUserCoords(dbWorker.getUserCoordsList());
+        else
+            write = parser.notSuccess();
     }
 
     private void addCoords(){

@@ -1631,3 +1631,26 @@
 2017-03-29 10:08:21 INFO  ClientEntity:164 - Обновляем задание
 2017-03-29 10:08:21 INFO  ClientEntity:74 - Сообщение юзеру Alex: {"response":"success_update_task"}
 2017-03-29 10:08:43 INFO  Server:42 - Alex отсоединился
+2017-03-29 15:37:52 INFO  Server:28 - сервер запущен
+2017-03-29 15:38:06 INFO  Server:28 - сервер запущен
+2017-03-29 16:03:52 INFO  Server:28 - сервер запущен
+2017-03-29 16:05:51 INFO  Server:28 - сервер запущен
+2017-03-29 16:06:25 INFO  DBStart:26 - соединение c бд установлено
+2017-03-29 16:06:25 INFO  Server:33 - Клиент присоединился
+2017-03-29 16:06:54 INFO  ClientEntity:71 - Сообщение от Alex{"request":"give_me_last_users_coords"}
+2017-03-29 16:06:54 INFO  ClientEntity:175 - Даем последние координаты юзеров
+2017-03-29 16:06:54 INFO  ClientEntity:74 - Сообщение юзеру Alex: {"response":"add_latest_user_coords","userCoordsList":[{"id":199,"userId":2,"lat":12.889254999999999,"log":100.87815,"ts":"2017-03-29 14:06:00.0"},{"id":211,"userId":3,"lat":12.8910021,"log":100.8795023,"ts":"2017-03-29 13:58:00.0"},{"id":213,"userId":86,"lat":12.8910021,"log":100.8795023,"ts":"2017-03-26 21:24:00.0"}]}
+2017-03-29 16:15:17 INFO  Server:42 - Alex отсоединился
+2017-03-29 16:15:33 INFO  DBStart:26 - соединение c бд установлено
+2017-03-29 16:15:33 INFO  Server:33 - Клиент присоединился
+2017-03-29 16:15:39 INFO  Server:42 - Alex отсоединился
+2017-03-29 16:15:44 INFO  DBStart:26 - соединение c бд установлено
+2017-03-29 16:15:44 INFO  Server:33 - Клиент присоединился
+2017-03-29 16:15:48 INFO  ClientEntity:71 - Сообщение от Alex{"request":"add_coords","userCoords":{"id":0,"lat":12.8910021,"log":100.8795023,"ts":"17/03/29 20:15","userId":2}}
+2017-03-29 16:15:48 INFO  ClientEntity:183 - Добавляем координаты юзера
+2017-03-29 16:15:48 INFO  ClientEntity:74 - Сообщение юзеру Alex: {"response":"success_add_coords"}
+2017-03-29 16:15:52 INFO  ClientEntity:71 - Сообщение от Alex{"request":"give_me_last_users_coords"}
+2017-03-29 16:15:52 INFO  ClientEntity:175 - Даем последние координаты юзеров
+2017-03-29 16:15:52 INFO  ClientEntity:74 - Сообщение юзеру Alex: {"response":"add_latest_user_coords","userCoordsList":[{"id":199,"userId":2,"lat":12.889254999999999,"log":100.87815,"ts":"2017-03-29 20:15:00.0"},{"id":211,"userId":3,"lat":12.8910021,"log":100.8795023,"ts":"2017-03-29 13:58:00.0"},{"id":213,"userId":86,"lat":12.8910021,"log":100.8795023,"ts":"2017-03-26 21:24:00.0"}]}
+2017-03-29 16:16:56 INFO  ClientEntity:71 - Сообщение от Alex{"request":"give_me_comments_by_task_id","task":{"addressId":3,"body":"Тестовое задание","created":"2017-03-29 06:11:57.0","doneTime":"2017-10-12 10:30:15.0","id":13,"importance":"стандартная","status":"новое задание","type":"АРТФ","userId":1}}
+2017-03-29 16:16:57 INFO  ClientEntity:74 - Сообщение юзеру Alex: {"response":"add_comments","comments":[{"id":63,"ts":"2017-03-29 06:17:26.0","body":"test","userId":1,"taskId":13},{"id":64,"ts":"2017-01-29 06:01:10.0","body":"test1","userId":1,"taskId":13}]}

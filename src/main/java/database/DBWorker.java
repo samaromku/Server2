@@ -14,6 +14,7 @@ public class DBWorker{
     private List<Comment> comments = new ArrayList<>();
     private List<Task> tasks = new ArrayList<>();
     private List<UserRole> userRoles = new ArrayList<>();
+    private List<UserCoords>userCoordsList = new ArrayList<>();
     private Statement statement;
     private Queries queries = new Queries();
     Logger log = Logger.getLogger(DBWorker.class.getName());
@@ -28,6 +29,10 @@ public class DBWorker{
 
     public void setUserRoles(List<UserRole> userRoles) {
         this.userRoles = userRoles;
+    }
+
+    public List<UserCoords> getUserCoordsList() {
+        return userCoordsList;
     }
 
     public List<UserRole> getUserRoles() {
@@ -129,6 +134,27 @@ public class DBWorker{
         } catch (SQLException e) {
             log.error(e);
             e.printStackTrace();
+        }
+    }
+
+    public boolean getLatestUserCoords(){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            ResultSet resultSet = statement.executeQuery(queries.getLastUserCoords());
+            while (resultSet.next()){
+                userCoordsList.add(new UserCoords(
+                        resultSet.getInt(Queries.ID),
+                        resultSet.getInt(Queries.USER_ID_USERS),
+                        resultSet.getDouble(Queries.COORDS_LAT),
+                        resultSet.getDouble(Queries.COORDS_LON),
+                        resultSet.getString(Queries.TS),
+                        resultSet.getString(Queries.ADDRESS)
+                ));
+            }
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

@@ -2,6 +2,7 @@ package entities;
 
 
 public class UserCoords {
+    private int id;
     private int userId;
     private double lat;
     private double log;
@@ -27,6 +28,15 @@ public class UserCoords {
     public UserCoords(double lat, double log) {
         this.lat = lat;
         this.log = log;
+    }
+
+    public UserCoords(int id, int userId, double lat, double log, String ts, String address) {
+        this.id = id;
+        this.userId = userId;
+        this.lat = lat;
+        this.log = log;
+        this.ts = ts;
+        this.address = address;
     }
 
     public int getUserId() {

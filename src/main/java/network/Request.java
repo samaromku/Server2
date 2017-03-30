@@ -18,6 +18,7 @@ public class Request {
     public static final String ADD_NEW_ROLE = "add_new_role";
     public static final String ADD_COORDS = "add_coords";
     public static final String UPDATE_TASK = "update_task";
+    public static final String GIVE_ME_LAST_USERS_COORDS = "give_me_last_users_coords";
 
     public UserCoords getUserCoords() {
         return userCoords;
