@@ -29,6 +29,9 @@ public class Response {
     public static final String SUCCESS_ADD_COORDS = "success_add_coords";
     public static final String SUCCESS_UPDATE_TASK = "success_update_task";
     public static final String NOT_SUCCESS = "not_success";
+    public static final String SUCCESS_REMOVE_USER = "success_remove_user";
+    public static final String SUCCESS_REMOVE_TASK = "success_remove_task";
+
 
     public Response() {
     }

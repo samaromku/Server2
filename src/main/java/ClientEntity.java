@@ -139,6 +139,14 @@ public class ClientEntity extends Thread {
                     getLatestUsersCoords();
                     return;
 
+                case Request.REMOVE_TASK:
+                    removeTask();
+                    return;
+
+                case Request.REMOVE_USER:
+                    removeUser();
+                    return;
+
                 case Request.GIVE_ME_ADDRESSES_PLEASE:
                     giveAddresses();
                     return;
@@ -162,6 +170,21 @@ public class ClientEntity extends Thread {
                     default:
             }
         }
+    }
+
+
+    private void removeTask(){
+        log.info("Удаляем задание");
+        if(dbWorker.removeTask(parser.parseFromJson(read).getTask())){
+            write = parser.success(Response.SUCCESS_REMOVE_TASK);
+        }else write = parser.notSuccess();
+    }
+
+    private void removeUser(){
+        log.info("Удаляем пользователя");
+        if(dbWorker.removeUser(parser.parseFromJson(read).getUser())){
+            write = parser.success(Response.SUCCESS_REMOVE_USER);
+        }else write = parser.notSuccess();
     }
 
     private void updateTask(){

@@ -86,6 +86,30 @@ public class Queries {
         return "SELECT id, coords_lat, coords_lon, users_id_users, address, max(ts) as ts from user_coords group by users_id_users;";
     }
 
+    public String removeCommentsByTaskId(Task task){
+        return "DELETE FROM `user_comment` WHERE `tasks_id_tasks`='"+task.getId()+"';";
+    }
+
+    public String removeTask(Task task){
+        return "DELETE FROM `tasks` WHERE `id`='"+task.getId()+"';";
+    }
+
+    public String removeCommentsByUserId(User user){
+        return "DELETE FROM `user_comment` WHERE `users_id_users`='"+user.getId()+"';";
+    }
+
+    public String removeUserRoleByUserId(User user){
+        return "DELETE FROM `user_role` WHERE `users_id_users`='"+user.getId()+"';";
+    }
+
+    public String removeCoordesByUserId(User user){
+        return "DELETE FROM `user_coords` WHERE `users_id_users`='"+user.getId()+"';";
+    }
+
+    public String removeUser(User user){
+        return "DELETE FROM `users` WHERE `id`='"+user.getId()+"';";
+    }
+
     public String addNewUser(User user){
         return "INSERT INTO `users` (`id`, `login`, `password`, `FIO`, `role`, `telephone`, `email`) VALUES " +
                 "('"+ user.getId() +"', '" + user.getLogin() +"', '"+ user.getPassword() +

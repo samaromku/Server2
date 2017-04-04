@@ -137,6 +137,32 @@ public class DBWorker{
         }
     }
 
+    public boolean removeTask(Task task){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.removeCommentsByTaskId(task));
+            statement.execute(queries.removeTask(task));
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean removeUser(User user){
+        try {
+            statement = dbStart.getConnection().createStatement();
+            statement.execute(queries.removeCommentsByUserId(user));
+            statement.execute(queries.removeCoordesByUserId(user));
+            statement.execute(queries.removeUserRoleByUserId(user));
+            statement.execute(queries.removeUser(user));
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean getLatestUserCoords(){
         try {
             statement = dbStart.getConnection().createStatement();

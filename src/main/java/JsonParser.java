@@ -20,6 +20,10 @@ public class JsonParser {
         return new Gson().toJson(new Response(Response.SUCCESS_UPDATE_TASK));
     }
 
+    public String success(String response){
+        return new Gson().toJson(new Response(response));
+    }
+
     public String parseAddressesToUser(List<Address> addresses){
         return new Gson().toJson(new Response(Response.ADD_ADDRESSES_TO_USER, addresses));
     }
